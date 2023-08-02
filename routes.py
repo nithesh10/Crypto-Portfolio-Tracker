@@ -1,3 +1,6 @@
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 from flask import render_template, redirect, url_for, flash
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_wtf import FlaskForm
@@ -81,24 +84,36 @@ def add_price_alert():
     db.session.add(price_alert)
     db.session.commit()
     return jsonify({'message': 'Price alert added successfully.'}), 200
-
-@app.route('/check_alerts')
+sent_email=[]
+@app.route('/check_alerts',methods=['GET', 'POST'])
 def check_alerts():
+    print("checking alerts")
     triggered_alerts = []
-
     with app.app_context():
         price_alerts = PriceAlerts.query.all()
         for alert in price_alerts:
-            symbol_info = get_symbol_info(alert.symbol)
-            if symbol_info:
-                symbol_data = symbol_info[0]
-                last_price = float(symbol_data['lastPrice'])
-                if last_price >= alert.upper_limit or last_price <= alert.lower_limit:
-                    triggered_alerts.append(alert.symbol)
-                    # Remove the PriceAlerts object after alerting
-                    db.session.delete(alert)
-                    db.session.commit()
-
+            if alert.id not in sent_email:
+                symbol_info = get_symbol_info(alert.symbol)
+                if symbol_info:
+                    symbol_data = symbol_info[0]
+                    last_price = float(symbol_data['lastPrice'])
+                    if last_price >= alert.upper_limit or last_price <= alert.lower_limit:
+                        price_change=float(symbol_data['price24hPcnt'])
+                        print("Alert triggered for {}".format(alert.symbol))
+                        user = User.query.get(alert.user_id)
+                        print("sending email to ",user.id,user.username,user.email)
+                        email_body = render_template('price_alert_email.html',
+                                symbol=alert.symbol,
+                                price=last_price,
+                                percentage_change=price_change)
+                        sent_email.append(alert.id)
+                        send_email(user.email,"Price Alert Triggered",email_body)
+                        triggered_alerts.append(alert.symbol)
+                        # Remove the PriceAlerts object after alerting
+                        #db.session.delete(alert)
+                        #db.session.commit()
+                        print("alert triggered via panel")
+    print("triggered alerts:-",triggered_alerts)
     return jsonify({'triggered_alerts': triggered_alerts})
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -163,3 +178,33 @@ def remove_from_watchlist(crypto_name):
 def dashboard():
     watchlist = Watchlist.query.filter_by(user_id=current_user.id).all()
     return render_template('dashboard.html', watchlist=watchlist)
+
+def send_email(recipient_email, subject, body):
+    sender_email = "a.nitheshkumar@gmail.com"
+    sender_password = "tsovmyxrsykdtcot"
+    try:
+        # creates SMTP session
+        s = smtplib.SMTP('smtp.gmail.com', 587)
+
+        # start TLS for security
+        s.starttls()
+
+        # Authentication
+        s.login(sender_email, sender_password)
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = subject
+        msg['From'] = sender_email
+        msg['To'] = recipient_email
+        # Create the email message
+        msg.attach(MIMEText(body, 'html'))
+        
+
+        # sending the mail
+        s.sendmail(sender_email, recipient_email, msg.as_string())
+
+        # terminating the session
+        s.quit()
+
+        print("Email sent successfully.")
+    except Exception as e:
+        print("Error: ", e)

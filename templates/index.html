@@ -57,10 +57,13 @@
 <div>
     <button onclick="addPriceAlert()">Add Price Alert</button>
 </div>
+<div>
+    <button onclick="checkForAlerts()">Check Price Alert</button>
+</div>
 
 <script>
     let lastSelectedSymbol = "BTCUSDT"; // Initialize with default symbol
-    const updateInterval = 3000; // Update every second (1000 milliseconds)
+    const updateInterval = 1000; // Update every second (1000 milliseconds)
 
     function updateChartWithCrypto(cryptoName, selectedTimeline) {
         fetch(`/candlestick_data?crypto=${cryptoName}&timeline=${selectedTimeline}`)
@@ -133,7 +136,11 @@
 
     // Set interval to update symbol info every second
     setInterval(updateSymbolInfo, updateInterval);
+    setInterval(checkForAlerts, 100000);
 
+    function displayNotification(symbol) {
+        alert(`Price Alert for ${symbol}`);
+    }
     // Function to add price alert thresholds when adding to the watchlist
     function addPriceAlert() {
     const lowerLimit = parseFloat(window.prompt('Enter Lower Limit:'));
@@ -160,8 +167,25 @@
             // Handle errors here
             console.error(error);
         });
+    }}
+    function checkForAlerts() {
+        fetch('/check_alerts')
+            .then(response => response.json())
+            .then(data => {
+                const triggeredAlerts = data.triggered_alerts;
+                if (triggeredAlerts.length > 0) {
+                    for (const symbol of triggeredAlerts) {
+                        displayNotification(symbol);
+                    }
+                }
+            })
+            .catch(error => {
+                alert(error);
+            });
     }
-}
+    
+    checkForAlerts();
+
 
 </script>
 {% endblock %}

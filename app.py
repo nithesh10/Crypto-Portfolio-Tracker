@@ -66,62 +66,9 @@ celery.conf.beat_schedule = {
     },
 }
 
-def track_prices():
-    with app.app_context():
-        while True:
-            # Add the cryptocurrencies you want to track here
-            price_alerts = PriceAlerts.query.all()
-            for alert in price_alerts:
-                symbol_info = get_symbol_info(alert.symbol)
-                if symbol_info:
-                    # Check if the response contains data
-                    symbol_data = symbol_info[0]  # Access the first dictionary in the list
-                    last_price = float(symbol_data['lastPrice'])  # Access 'lastPrice'
-                    price_change=float(symbol_data['price24hPcnt'])
-                    print(price_change)
-                    print("Last price for {}: {}".format(alert.symbol, last_price))
-                    if last_price >= alert.upper_limit or last_price <= alert.lower_limit:
-                        print("Alert triggered for {}".format(alert.symbol))
-                        user = User.query.get(alert.user_id)
-                        print("sending email to ",user.id,user.username,user.email)
-                        email_body = render_template('price_alert_email.html',
-                                 symbol=alert.symbol,
-                                 price=last_price,
-                                 percentage_change=price_change)
-                        send_email(user.email,"Price Alert Triggered",email_body)
-                        db.session.delete(alert)
-                        db.session.commit()
-            time.sleep(5)
 
-def send_email(recipient_email, subject, body):
-    sender_email = "a.nitheshkumar@gmail.com"
-    sender_password = "tsovmyxrsykdtcot"
-    try:
-        # creates SMTP session
-        s = smtplib.SMTP('smtp.gmail.com', 587)
 
-        # start TLS for security
-        s.starttls()
 
-        # Authentication
-        s.login(sender_email, sender_password)
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = subject
-        msg['From'] = sender_email
-        msg['To'] = recipient_email
-        # Create the email message
-        msg.attach(MIMEText(body, 'html'))
-        
-
-        # sending the mail
-        s.sendmail(sender_email, recipient_email, msg.as_string())
-
-        # terminating the session
-        s.quit()
-
-        print("Email sent successfully.")
-    except Exception as e:
-        print("Error: ", e)
 
 
 # User loader
@@ -137,6 +84,42 @@ with app.app_context():
     db.create_all()
 
 if __name__ == '__main__':
-    price_thread = threading.Thread(target=track_prices)
-    price_thread.start()
+    #price_thread = threading.Thread(target=track_prices)
+    #price_thread.start()
     app.run(debug=True)
+
+
+
+"""
+def track_prices():
+    with app.app_context():
+        sent_email=[]
+        while True:
+            # Add the cryptocurrencies you want to track here
+            price_alerts = PriceAlerts.query.all()
+            for alert in price_alerts:
+                if alert.id not in sent_email:
+                    print(alert,sent_email)
+                    symbol_info = get_symbol_info(alert.symbol)
+                    if symbol_info:
+                        # Check if the response contains data
+                        symbol_data = symbol_info[0]  # Access the first dictionary in the list
+                        last_price = float(symbol_data['lastPrice'])  # Access 'lastPrice'
+                        price_change=float(symbol_data['price24hPcnt'])
+                        print(price_change)
+                        print("Last price for {}: {}".format(alert.symbol, last_price))
+                        if last_price >= alert.upper_limit or last_price <= alert.lower_limit:
+                            print("Alert triggered for {}".format(alert.symbol))
+                            user = User.query.get(alert.user_id)
+                            print("sending email to ",user.id,user.username,user.email)
+                            email_body = render_template('price_alert_email.html',
+                                    symbol=alert.symbol,
+                                    price=last_price,
+                                    percentage_change=price_change)
+                            sent_email.append(alert)
+                            send_email(user.email,"Price Alert Triggered",email_body)
+                            
+                            #db.session.delete(alert)
+                            #db.session.commit()
+            time.sleep(100)
+"""
