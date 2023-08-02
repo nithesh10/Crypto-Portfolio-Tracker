@@ -1,13 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h2>Select Cryptocurrencies</h2>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.cryptos.label }}<br>
-            {{ form.cryptos(size=32) }}
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
+    <h2>Your Watchlist</h2>
+    <ul>
+    {% for crypto in watchlist %}
+        <li>
+            {{ crypto.crypto_name }}
+            <form method="POST" action="{{ url_for('remove_from_watchlist', crypto_name=crypto.crypto_name) }}">
+                <input type="submit" value="Remove">
+            </form>
+        </li>
+    {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('add_to_watchlist') }}">Add a crypto to your watchlist</a>
 {% endblock %}
