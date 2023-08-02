@@ -14,6 +14,8 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     cryptos = db.relationship('Crypto', backref='user', lazy='dynamic')
     watchlist = db.relationship('Watchlist', backref='user', lazy='dynamic')
+    receive_portfolio_email = db.Column(db.Boolean, default=False)  # Add this field
+
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

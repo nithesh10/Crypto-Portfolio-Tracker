@@ -60,6 +60,10 @@
 <div>
     <button onclick="checkForAlerts()">Check Price Alert</button>
 </div>
+<div>
+    <input type="checkbox" id="portfolio-email-checkbox" onclick="togglePortfolioEmail()">
+    <label for="portfolio-email-checkbox">Sign up for daily portfolio email updates</label>
+</div>
 
 <script>
     let lastSelectedSymbol = "BTCUSDT"; // Initialize with default symbol
@@ -101,7 +105,30 @@
             });
         lastSelectedSymbol = cryptoName;
     }
+    function togglePortfolioEmail() {
+        const checkbox = document.getElementById("portfolio-email-checkbox");
+        const signUpForEmailUpdates = checkbox.checked;
 
+        // Send the data to the backend using fetch
+        fetch('/sign_up_for_portfolio_email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                sign_up: signUpForEmailUpdates
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Display a success message or handle errors here
+            alert(data.message);
+        })
+        .catch(error => {
+            // Handle errors here
+            console.error(error);
+        });
+    }
     function updateSymbolInfo() {
         fetch(`/symbol_info?symbol=${lastSelectedSymbol}`)
             .then(response => response.json())
@@ -180,7 +207,7 @@
                 }
             })
             .catch(error => {
-                alert(error);
+                console.error(error);
             });
     }
     

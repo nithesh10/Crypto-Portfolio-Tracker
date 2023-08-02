@@ -116,6 +116,20 @@ def check_alerts():
     print("triggered alerts:-",triggered_alerts)
     return jsonify({'triggered_alerts': triggered_alerts})
 
+@app.route('/sign_up_for_portfolio_email', methods=['POST'])
+def sign_up_for_portfolio_email():
+    data = request.get_json()
+    user_id = current_user.id  
+    sign_up = data.get('sign_up', False)
+
+    # Update the user's email preference in the database
+    user = User.query.get(user_id)
+    user.receive_portfolio_email = sign_up
+    db.session.commit()
+    send_portfolio_email(current_user.id)
+
+    return jsonify(message='Email preference updated successfully'), 200
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = SignupForm()
@@ -178,6 +192,36 @@ def remove_from_watchlist(crypto_name):
 def dashboard():
     watchlist = Watchlist.query.filter_by(user_id=current_user.id).all()
     return render_template('dashboard.html', watchlist=watchlist)
+
+def send_portfolio_email(user_id):
+    sender_email = "a.nitheshkumar@gmail.com"
+    sender_password = "tsovmyxrsykdtcot"
+    user = User.query.get(user_id)
+    if not user.receive_portfolio_email:
+        return
+
+    # Get the user's watchlist
+    watchlist = user.watchlist  # Assuming you have a relationship set up between User and Watchlist models
+
+    # Create the email message
+    subject = "Daily Portfolio Update"
+    body = "Here is your daily portfolio update:\n\n"
+    s = smtplib.SMTP('smtp.gmail.com', 587)
+    # start TLS for security
+    s.starttls()
+    # Authentication
+    s.login(sender_email, sender_password)
+    
+    for item in watchlist:
+        # Fetch the data for each stock
+        symbol_info = get_symbol_info(item.crypto_name)  # Implement this function to get symbol_info for each stock
+        if symbol_info:
+            symbol_data = symbol_info[0]
+            last_price = float(symbol_data['lastPrice'])
+            price_change = float(symbol_data['price24hPcnt'])
+            body += f"{item.crypto_name}: {last_price} (Change: {price_change:.2f}%)\n"
+        s.sendmail(sender_email, user.email, body)
+        print("Email sent successfully.")
 
 def send_email(recipient_email, subject, body):
     sender_email = "a.nitheshkumar@gmail.com"
