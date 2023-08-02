@@ -78,12 +78,19 @@ def index():
 def signup():
     form = SignupForm()
     if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user is not None:
+            flash('Username already taken. Please choose a different one.')
+            return redirect(url_for('signup'))
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is not None:
+            flash('Registered User With this email exists.Please Login')
+            return redirect(url_for('login'))
         user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Congratulations, you are now a registered user!')
-        return redirect(url_for('login'))
+        return redirect(url_for('login')) 
     return render_template('signup.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])

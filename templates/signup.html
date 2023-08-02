@@ -4,22 +4,27 @@
     <h2>Register</h2>
     <form method="POST">
         {{ form.hidden_tag() }}
-        <p>
-            {{ form.username.label }}<br>
-            {{ form.username(size=32) }}
-        </p>
-        <p>
-            {{ form.email.label }}<br>
-            {{ form.email(size=32) }}
-        </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password(size=32) }}
-        </p>
-        <p>
-            {{ form.password2.label }}<br>
-            {{ form.password2(size=32) }}
-        </p>
-        <p>{{ form.submit() }}</p>
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.label(class="form-label") }}<br>
+                {% if field.type != "SubmitField" %}
+                    {{ field(class="form-control", size=32) }}
+                    {% for error in field.errors %}
+                        <small class="form-text text-danger">{{ error }}</small>
+                    {% endfor %}
+                {% else %}
+                    {{ field(class="btn btn-primary") }}
+                {% endif %}
+            </div>
+        {% endfor %}
     </form>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <script>
+                alert("{{ messages[0] }}");
+            </script>
+        {% endif %}
+    {% endwith %}
+
 {% endblock %}
