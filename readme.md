@@ -48,3 +48,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## Author
 - Nithesh Kumar A
+![image](https://github.com/nithesh10/Crypto-Portfolio-Tracker/assets/83530216/650c9cb4-67ce-4a02-a0b9-62002074a4fe)
