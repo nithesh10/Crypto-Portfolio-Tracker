@@ -1,110 +1,167 @@
 <!-- index.html -->
 {% extends "base.html" %}
-
 {% block title %}Candlestick Chart{% endblock %}
 
 {% block navigation %}
-    <div>
-        <a href="/logout">Logout</a>
-    </div>
+<div>
+    <a href="/logout">Logout</a>
+</div>
 {% endblock %}
 
 {% block content %}
-    <!-- Add your dashboard content here -->
-    <div class="container">
-        <div id="chart-section">
-            <div id="candlestick-chart"></div>
-        </div>
-        <div id="watchlist-section" class="watchlist-container">
-            <h2>
-                Watchlist
-                <!-- Add your watchlist content here or use Flask/Jinja2 to render the watchlist data -->
-                <form method="POST" style="display: inline;">
-                    {{ watchlist_form.hidden_tag() }}
-                    {{ watchlist_form.crypto(style='width:50%; display:inline;') }}
-                    {{ watchlist_form.submit(style='display:inline;') }}
-                </form>
-            </h2>
-            <ul id="watchlist-items">
-                {% for crypto in watchlist %}
-                    <li data-crypto="{{ crypto.crypto_name }}">{{ crypto.crypto_name }}</li>
-                {% endfor %}
-            </ul>
-        </div>
+<!-- Add your dashboard content here -->
+<div class="container">
+    <div id="chart-section">
+        <div id="candlestick-chart"></div>
     </div>
-    <div>
-        <label for="timeline">Select Timeline:</label>
-        <select id="timeline" onchange="updateChart()">
-            <option value="5">5 minutes</option>
-            <option value="15">15 minutes</option>
-            <option value="30">30 minutes</option>
-            <option value="60">1 hour</option>
-            <option value="240">4 hours</option>
-            <option value="720">12 hours</option>
-            <option value="D">Daily</option>
-            <option value="W">Weekly</option>
-            <option value="M">Monthly</option>
-        </select>
+    <div id="watchlist-section" class="watchlist-container">
+        <h2>
+            Watchlist
+            <!-- Add your watchlist content here or use Flask/Jinja2 to render the watchlist data -->
+            <form method="POST" style="display: inline;">
+                {{ watchlist_form.hidden_tag() }}
+                {{ watchlist_form.crypto(style='width:50%; display:inline;') }}
+                {{ watchlist_form.submit(style='display:inline;') }}
+            </form>
+        </h2>
+        <ul id="watchlist-items">
+            {% for crypto in watchlist %}
+            <li data-crypto="{{ crypto.crypto_name }}">{{ crypto.crypto_name }}</li>
+            {% endfor %}
+        </ul>
     </div>
+</div>
+<div>
+    <label for="timeline">Select Timeline:</label>
+    <select id="timeline" onchange="handleTimelineChange()">
+        <option value="5">5 minutes</option>
+        <option value="15">15 minutes</option>
+        <option value="30">30 minutes</option>
+        <option value="60">1 hour</option>
+        <option value="240">4 hours</option>
+        <option value="720">12 hours</option>
+        <option value="D">Daily</option>
+        <option value="W">Weekly</option>
+        <option value="M">Monthly</option>
+    </select>
+</div>
 
-    <script>
+<div>
+    <h2>Symbol Info</h2>
+    <p>Current Price: <span id="current-price"></span></p>
+    <p>High Price (24h): <span id="high-price"></span></p>
+    <p>Low Price (24h): <span id="low-price"></span></p>
+    <p>Price Change (24h): <span id="price-change"></span></p>
+</div>
 
-        function updateChartWithCrypto(cryptoName, selectedTimeline) {
-            fetch(`/candlestick_data?crypto=${cryptoName}&timeline=${selectedTimeline}`)
-                .then(response => response.json())
-                .then(data => {
-                    const trace = {
-                        x: data.map(d => d.times),
-                        open: data.map(d => d.open),
-                        high: data.map(d => d.high),
-                        low: data.map(d => d.low),
-                        close: data.map(d => d.close),
-                        type: 'candlestick',
-                        name: 'Candlestick Chart',
-                    };
+<div>
+    <button onclick="addPriceAlert()">Add Price Alert</button>
+</div>
 
-                    const layout = {
-                        title: `Candlestick Chart for ${cryptoName} - ${selectedTimeline} minutes`,
-                        xaxis: {
-                            rangeslider: {
-                                visible: false
-                            }
-                        },
-                        yaxis: {
-                            title: 'Price',
-                            fixedrange: true
+<script>
+    let lastSelectedSymbol = "BTCUSDT"; // Initialize with default symbol
+    const updateInterval = 3000; // Update every second (1000 milliseconds)
+
+    function updateChartWithCrypto(cryptoName, selectedTimeline) {
+        fetch(`/candlestick_data?crypto=${cryptoName}&timeline=${selectedTimeline}`)
+            .then(response => response.json())
+            .then(data => {
+                const trace = {
+                    x: data.map(d => d.times),
+                    open: data.map(d => d.open),
+                    high: data.map(d => d.high),
+                    low: data.map(d => d.low),
+                    close: data.map(d => d.close),
+                    type: 'candlestick',
+                    name: 'Candlestick Chart',
+                };
+
+                const layout = {
+                    title: `Candlestick Chart for ${cryptoName} - ${selectedTimeline} minutes`,
+                    xaxis: {
+                        rangeslider: {
+                            visible: false
                         }
-                    };
+                    },
+                    yaxis: {
+                        title: 'Price',
+                        fixedrange: true
+                    }
+                };
 
-                    const figure = {
-                        data: [trace],
-                        layout: layout
-                    };
+                const figure = {
+                    data: [trace],
+                    layout: layout
+                };
 
-                    Plotly.newPlot('candlestick-chart', figure);
-                    
-                });
-                lastSelectedCrypto = cryptoName; 
+                Plotly.newPlot('candlestick-chart', figure);
+            });
+        lastSelectedSymbol = cryptoName;
+    }
+
+    function updateSymbolInfo() {
+        fetch(`/symbol_info?symbol=${lastSelectedSymbol}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("current-price").innerText = data[0].lastPrice;
+                document.getElementById("high-price").innerText = data[0].highPrice24h;
+                document.getElementById("low-price").innerText = data[0].lowPrice24h;
+                document.getElementById("price-change").innerText = data[0].price24hPcnt;
+            });
+    }
+
+    function handleTimelineChange() {
+        const selectedTimeline = document.getElementById("timeline").value;
+        updateChartWithCrypto(lastSelectedSymbol, selectedTimeline);
+        updateSymbolInfo();
+    }
+
+    document.getElementById("watchlist-items").addEventListener("click", handleWatchlistItemClick);
+
+    function handleWatchlistItemClick(event) {
+        const cryptoName = event.target.dataset.crypto;
+        if (cryptoName) {
+            const selectedTimeline = document.getElementById("timeline").value;
+            updateChartWithCrypto(cryptoName, selectedTimeline);
+            updateSymbolInfo();
         }
+    }
 
-        // Attach the event listener to watchlist items
-        document.getElementById("watchlist-items").addEventListener("click", handleWatchlistItemClick);
-        function updateChart() {
-            const selectedCrypto = document.querySelector("#watchlist-items li.active");
-            const selectedCryptoName = selectedCrypto ? selectedCrypto.dataset.crypto : "BTCUSDT";
-            const selectedTimeline = event.target.value;
-            updateChartWithCrypto(lastSelectedCrypto, selectedTimeline);
-        }
+    // Initial chart load
+    updateChartWithCrypto("BTCUSDT", "5"); // You can set the default crypto and timeline here
+    updateSymbolInfo(); // Call the function to update symbol info
 
-        function handleWatchlistItemClick(event) {
-            const cryptoName = event.target.dataset.crypto;
-            if (cryptoName) {
-                const selectedTimeline = document.getElementById("timeline").value;
-                updateChartWithCrypto(cryptoName, selectedTimeline);
-            }
-        }
+    // Set interval to update symbol info every second
+    setInterval(updateSymbolInfo, updateInterval);
 
-        // Initial chart load
-        updateChartWithCrypto("BTCUSDT", "5"); // You can set the default crypto and timeline here
-    </script>
+    // Function to add price alert thresholds when adding to the watchlist
+    function addPriceAlert() {
+    const lowerLimit = parseFloat(window.prompt('Enter Lower Limit:'));
+    const upperLimit = parseFloat(window.prompt('Enter Upper Limit:'));
+    if (!isNaN(lowerLimit) && !isNaN(upperLimit)) {
+        // Send the data to the backend using fetch
+        fetch('/add_price_alert', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                crypto_name: lastSelectedSymbol,
+                lower_limit: lowerLimit,
+                upper_limit: upperLimit
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Display a success message or handle errors here
+            alert(data.message);
+        })
+        .catch(error => {
+            // Handle errors here
+            console.error(error);
+        });
+    }
+}
+
+</script>
 {% endblock %}

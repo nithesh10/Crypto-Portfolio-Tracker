@@ -12,7 +12,15 @@ def get_symbols():
     response=response.json()['result']['list']
     return response
 
-
+def get_symbol_info(symbol):
+    url = f'https://api.bybit.com/v5/market/tickers'
+    params = {
+        'symbol': symbol,
+        'category': "spot",
+    }
+    response = requests.get(url, params=params)
+    data = response.json()['result']
+    return (data['list'])
 def get_candlestick_data(symbol, interval, limit):
     print(symbol,interval)
     url = f'https://api.bybit.com/v5/market/kline/'

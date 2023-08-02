@@ -3,10 +3,10 @@ from flask_login import current_user, login_user, logout_user, login_required
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectMultipleField, SelectField
 from wtforms.validators import DataRequired, EqualTo, Email, Regexp, ValidationError
-from bybit import get_candlestick_data
+from bybit import get_candlestick_data, get_symbol_info
 from database import db
 from forms import WatchlistForm,SignupForm,LoginForm
-from models import Crypto, User, Watchlist
+from models import Crypto, PriceAlerts, User, Watchlist
 from app import app, cryptos
 from flask import Flask, render_template, jsonify,request
 import pandas as pd
@@ -20,7 +20,12 @@ def index():
     watchlist = Watchlist.query.filter_by(user_id=current_user.id).all()
 
     if watchlist_form.validate_on_submit():
-        crypto = Watchlist(user_id=current_user.id, crypto_name=watchlist_form.crypto.data)
+        crypto = Watchlist(
+            user_id=current_user.id,
+            crypto_name=watchlist_form.crypto.data,
+            lower_limit=watchlist_form.lower_limit.data,
+            upper_limit=watchlist_form.upper_limit.data
+        )
         db.session.add(crypto)
         db.session.commit()
         flash('Crypto added to watchlist!')
@@ -58,6 +63,24 @@ def candlestick_data():
     data['times'] = data['times'].dt.strftime('%Y-%m-%d %H:%M:%S')
     saved_symbol=selected_crypto
     return jsonify(data.to_dict(orient='records'))
+
+@app.route('/symbol_info', methods=['GET'])
+def symbol_info():
+    symbol = request.args.get('symbol', 'BTCUSDT')
+    symbol_info = get_symbol_info(symbol)
+    return jsonify(symbol_info)
+
+@app.route('/add_price_alert', methods=['GET', 'POST'])
+def add_price_alert():
+    data = request.get_json()
+    user_id = current_user.id
+    symbol = data.get('crypto_name', 'BTCUSDT')
+    lower_limit = data.get('lower_limit')
+    upper_limit = data.get('upper_limit')
+    price_alert = PriceAlerts(user_id=user_id, symbol=symbol, lower_limit=lower_limit, upper_limit=upper_limit)
+    db.session.add(price_alert)
+    db.session.commit()
+    return jsonify({'message': 'Price alert added successfully.'}), 200
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():

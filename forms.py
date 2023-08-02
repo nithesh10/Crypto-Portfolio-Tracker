@@ -5,6 +5,7 @@ from wtforms import StringField, PasswordField, SubmitField, SelectMultipleField
 from wtforms.validators import DataRequired, EqualTo, Email, Regexp, ValidationError
 import requests
 from models import User
+from wtforms import StringField, FloatField
 from bybit import *
 # fetch a list of cryptocurrencies
 response=get_symbols()
@@ -39,3 +40,5 @@ class CryptoForm(FlaskForm):
 class WatchlistForm(FlaskForm):
     crypto = SelectField('Cryptocurrency', choices=cryptos)
     submit = SubmitField('Submit')
+    lower_limit = FloatField('Lower Price Limit')
+    upper_limit = FloatField('Upper Price Limit')
