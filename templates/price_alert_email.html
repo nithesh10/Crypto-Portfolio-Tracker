@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Alert</title>
+    <style>
+        /* Add your custom CSS styles here */
+        /* This is just a simple example, you can add your own branding styles */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+        }
+        .logo {
+            display: block;
+            max-width: 200px;
+            margin: 0 auto 20px;
+        }
+        .crypto-info {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .price {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .percentage-change {
+            font-size: 16px;
+            color: #008000; /* Green color for positive changes */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Add your web application's logo here -->
+        <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/d/dc/Portfolio.hu_full_logo.png" alt="Your Logo">
+
+        <!-- Dynamic content for cryptocurrency information -->
+        <div class="crypto-info">
+            <p>Price Alert for <strong>{{ symbol }}</strong></p>
+            <p class="price">Current Price: ${{ price }}</p>
+            <p class="percentage-change">Percentage Change: {{ percentage_change }}%</p>
+        </div>
+
+        <!-- Add any additional content or call-to-action here -->
+    </div>
+</body>
+</html>

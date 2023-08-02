@@ -82,6 +82,25 @@ def add_price_alert():
     db.session.commit()
     return jsonify({'message': 'Price alert added successfully.'}), 200
 
+@app.route('/check_alerts')
+def check_alerts():
+    triggered_alerts = []
+
+    with app.app_context():
+        price_alerts = PriceAlerts.query.all()
+        for alert in price_alerts:
+            symbol_info = get_symbol_info(alert.symbol)
+            if symbol_info:
+                symbol_data = symbol_info[0]
+                last_price = float(symbol_data['lastPrice'])
+                if last_price >= alert.upper_limit or last_price <= alert.lower_limit:
+                    triggered_alerts.append(alert.symbol)
+                    # Remove the PriceAlerts object after alerting
+                    db.session.delete(alert)
+                    db.session.commit()
+
+    return jsonify({'triggered_alerts': triggered_alerts})
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = SignupForm()
