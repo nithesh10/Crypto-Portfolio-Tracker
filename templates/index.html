@@ -1,17 +1,115 @@
-{% extends "base.html" %}
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Candlestick Chart</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        #chart-wrapper {
+            display: flex;
+        }
+        #candlestick-chart {
+            height: 600px; /* Set a default height for the chart */
+            flex: 1;
+            margin-right: 10px;
+        }
+        .watchlist-container {
+            width: 30%;
+            padding: 10px;
+            box-sizing: border-box;
+            float: right; /* Float the watchlist container to the right */
+        }
+        label, select {
+            display: block;
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chart-wrapper">
+        <div id="candlestick-chart"></div>
+        <div class="watchlist-container">
+            <h2>
+                Watchlist
+                <!-- Add your watchlist content here or use Flask/Jinja2 to render the watchlist data -->
+                <form method="POST" style="display: inline;">
+                    {{ watchlist_form.hidden_tag() }}
+                    {{ watchlist_form.crypto(style='width:50%; display:inline;') }}
+                    {{ watchlist_form.submit(style='display:inline;') }}
+                </form>
+            </h2>
+            <ul>
+                {% for crypto in watchlist %}
+                    <li>{{ crypto.crypto_name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div>
+        <label for="timeline">Select Timeline:</label>
+        <select id="timeline" onchange="updateChart()">
+            <option value="5">5 minutes</option>
+            <option value="15">15 minutes</option>
+            <option value="30">30 minutes</option>
+            <option value="60">1 hour</option>
+            <option value="240">4 hours</option>
+            <option value="720">12 hours</option>
+            <option value="D">Daily</option>
+            <option value="W">Weekly</option>
+            <option value="M">Monthly</option>
+        </select>
+    </div>
+    <script>
+       function updateChart() {
+            const selectedTimeline = document.getElementById("timeline").value;
+            fetch(`/candlestick_data?timeline=${selectedTimeline}`)
+                .then(response => response.json())
+                .then(data => {
+                    const trace = {
+                        x: data.map(d => d.times),
+                        open: data.map(d => d.open),
+                        high: data.map(d => d.high),
+                        low: data.map(d => d.low),
+                        close: data.map(d => d.close),
+                        type: 'candlestick',
+                        name: 'Candlestick Chart',
+                    };
 
-{% block content %}
-    <h2>Your Watchlist</h2>
-    <ul>
-    {% for crypto in watchlist %}
-        <li>
-            {{ crypto.crypto_name }}
-            <form method="POST" action="{{ url_for('remove_from_watchlist', crypto_name=crypto.crypto_name) }}">
-                <input type="submit" value="Remove">
-            </form>
-        </li>
-    {% endfor %}
-    </ul>
+                    const layout = {
+                        title: `Candlestick Chart for BTCUSDT - ${selectedTimeline} minutes`,
+                        xaxis: {
+                            rangeslider: {
+                                visible: false
+                            }
+                        },
+                        yaxis: {
+                            title: 'Price',
+                            fixedrange: true
+                        }
+                    };
 
-    <a href="{{ url_for('add_to_watchlist') }}">Add a crypto to your watchlist</a>
-{% endblock %}
+                    const figure = {
+                        data: [trace],
+                        layout: layout
+                    };
+
+                    Plotly.newPlot('candlestick-chart', figure);
+                });
+        }
+
+        // Initial chart load
+        updateChart();
+    </script>
+</body>
+</html>
