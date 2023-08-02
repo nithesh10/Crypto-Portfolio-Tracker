@@ -5,7 +5,7 @@
     <title>{% block title %}Candlestick Chart{% endblock %}</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
-        /* Add the following styles to your existing styles */
+        
         #chart-section {
             flex: 3;
         }
@@ -47,7 +47,7 @@
             border: 1px solid #ccc;
         }
     
-        /* Add a little box shadow to the watchlist container for a nice touch */
+        
         .watchlist-container {
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         }
@@ -62,7 +62,7 @@
         </div>
         <div class="nav-links">
             {% block navigation %}
-                <!-- Add your navigation bar content here (e.g., login/logout and register links) -->
+                
                 {% if not logged_in %}
                     <a href="/login">Login</a>
                     <a href="/signup">Register</a>

@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 
 
-# Replace with your Bybit API credentials
+
 API_KEY = 'YOUR_API_KEY'
 SECRET_KEY = 'YOUR_SECRET_KEY'
 

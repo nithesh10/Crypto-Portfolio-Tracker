@@ -53,8 +53,8 @@ def candlestick_data():
     selected_crypto = request.args.get('crypto',"BTCUSDT") 
     if(selected_crypto=="None"):
         selected_crypto=saved_symbol
-    symbol = selected_crypto  # Replace with your desired trading pair
-    timeline = (request.args.get('timeline', '5'))  # Get selected timeline, default 5 minutes
+    symbol = selected_crypto  
+    timeline = (request.args.get('timeline', '5'))  
     interval = f'{timeline}'  # Convert to string for API request
     limit = 100  # Number of data points to fetch
     data = get_candlestick_data(symbol, interval, limit)
@@ -201,20 +201,20 @@ def send_portfolio_email(user_id):
         return
 
     # Get the user's watchlist
-    watchlist = user.watchlist  # Assuming you have a relationship set up between User and Watchlist models
+    watchlist = user.watchlist  
 
     # Create the email message
     subject = "Daily Portfolio Update"
     body = "Here is your daily portfolio update:\n\n"
     s = smtplib.SMTP('smtp.gmail.com', 587)
-    # start TLS for security
+ 
     s.starttls()
     # Authentication
     s.login(sender_email, sender_password)
     
     for item in watchlist:
         # Fetch the data for each stock
-        symbol_info = get_symbol_info(item.crypto_name)  # Implement this function to get symbol_info for each stock
+        symbol_info = get_symbol_info(item.crypto_name)  
         if symbol_info:
             symbol_data = symbol_info[0]
             last_price = float(symbol_data['lastPrice'])
