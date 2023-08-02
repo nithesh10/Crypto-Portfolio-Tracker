@@ -1,45 +1,21 @@
 <!-- index.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Candlestick Chart</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-        }
-        #chart-wrapper {
-            display: flex;
-        }
-        #candlestick-chart {
-            height: 600px; /* Set a default height for the chart */
-            flex: 1;
-            margin-right: 10px;
-        }
-        .watchlist-container {
-            width: 30%;
-            padding: 10px;
-            box-sizing: border-box;
-            float: right; /* Float the watchlist container to the right */
-        }
-        label, select {
-            display: block;
-            margin-bottom: 10px;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 5px;
-        }
-    </style>
-</head>
-<body>
-    <div id="chart-wrapper">
-        <div id="candlestick-chart"></div>
-        <div class="watchlist-container">
+{% extends "base.html" %}
+
+{% block title %}Candlestick Chart{% endblock %}
+
+{% block navigation %}
+    <div>
+        <a href="/logout">Logout</a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <!-- Add your dashboard content here -->
+    <div class="container">
+        <div id="chart-section">
+            <div id="candlestick-chart"></div>
+        </div>
+        <div id="watchlist-section" class="watchlist-container">
             <h2>
                 Watchlist
                 <!-- Add your watchlist content here or use Flask/Jinja2 to render the watchlist data -->
@@ -70,8 +46,9 @@
             <option value="M">Monthly</option>
         </select>
     </div>
+
     <script>
-       function updateChart() {
+        function updateChart() {
             const selectedTimeline = document.getElementById("timeline").value;
             fetch(`/candlestick_data?timeline=${selectedTimeline}`)
                 .then(response => response.json())
@@ -111,5 +88,4 @@
         // Initial chart load
         updateChart();
     </script>
-</body>
-</html>
+{% endblock %}

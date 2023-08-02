@@ -1,38 +1,103 @@
+<!-- base.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <title>Crypto Tracker</title>
-    <!-- include Bootstrap CSS -->
-    {{ bootstrap.load_css() }}
+    <title>{% block title %}Candlestick Chart{% endblock %}</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        /* Add the following styles to your existing styles */
+        #chart-section {
+            flex: 3;
+        }
+    
+        .watchlist-container {
+            flex: 1;
+            min-width: 200px; /* Adjust as needed */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            background-color: #f7f7f7; /* Light gray background for watchlist */
+            border-radius: 10px;
+            padding: 20px;
+        }
+    
+        .watchlist-container h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+    
+        .watchlist ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+    
+        .watchlist li {
+            margin-bottom: 5px;
+            font-size: 16px;
+            color: #333;
+        }
+    
+        /* Styling for the select dropdown */
+        #timeline {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+    
+        /* Add a little box shadow to the watchlist container for a nice touch */
+        .watchlist-container {
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+    
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="/">Crypto Tracker</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav mr-auto">
-                {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                    </li>
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="nav-logo">
+            <!-- You can add your logo here if desired -->
+        </div>
+        <div class="nav-links">
+            {% block navigation %}
+                <!-- Add your navigation bar content here (e.g., login/logout and register links) -->
+                {% if not logged_in %}
+                    <a href="/login">Login</a>
+                    <a href="/signup">Register</a>
                 {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('signup') }}">Register</a>
-                    </li>
+                    <a href="/logout">Logout</a>
                 {% endif %}
-            </ul>
+            {% endblock %}
         </div>
     </nav>
 
+    <!-- Page Content -->
     <div class="container">
-        <!-- this is where the content of the child templates will be inserted -->
         {% block content %}
+            <div id="chart-section">
+                <!-- Place your chart code here -->
+                <div id="candlestick-chart-container">
+                    <div id="candlestick-chart"></div>
+                </div>
+            </div>
+            <div id="watchlist-section">
+                <!-- Place your watchlist code here -->
+                <div class="watchlist">
+                    <h2>Watchlist</h2>
+                    <ul>
+                        <li>Item 1</li>
+                        <li>Item 2</li>
+                        <!-- Add more watchlist items here -->
+                    </ul>
+                </div>
+            </div>
         {% endblock %}
     </div>
 
-    <!-- include Bootstrap JavaScript -->
-    {{ bootstrap.load_js() }}
+    <script>
+        /* Add your custom JavaScript code here */
+    </script>
 </body>
 </html>
