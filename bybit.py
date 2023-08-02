@@ -8,10 +8,13 @@ SECRET_KEY = 'YOUR_SECRET_KEY'
 
 
 def get_symbols():
-    response = requests.get('https://api.bybit.com/v2/public/symbols', headers={'api_key': 'YourAPIKey'})
+    response = requests.get('https://api.bybit.com/spot/v3/public/symbols', headers={'api_key': 'YourAPIKey'})
+    response=response.json()['result']['list']
     return response
 
+
 def get_candlestick_data(symbol, interval, limit):
+    print(symbol,interval)
     url = f'https://api.bybit.com/v5/market/kline/'
     params = {
         'symbol': symbol,

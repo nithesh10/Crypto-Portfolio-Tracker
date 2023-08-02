@@ -25,9 +25,9 @@
                     {{ watchlist_form.submit(style='display:inline;') }}
                 </form>
             </h2>
-            <ul>
+            <ul id="watchlist-items">
                 {% for crypto in watchlist %}
-                    <li>{{ crypto.crypto_name }}</li>
+                    <li data-crypto="{{ crypto.crypto_name }}">{{ crypto.crypto_name }}</li>
                 {% endfor %}
             </ul>
         </div>
@@ -48,9 +48,9 @@
     </div>
 
     <script>
-        function updateChart() {
-            const selectedTimeline = document.getElementById("timeline").value;
-            fetch(`/candlestick_data?timeline=${selectedTimeline}`)
+
+        function updateChartWithCrypto(cryptoName, selectedTimeline) {
+            fetch(`/candlestick_data?crypto=${cryptoName}&timeline=${selectedTimeline}`)
                 .then(response => response.json())
                 .then(data => {
                     const trace = {
@@ -64,7 +64,7 @@
                     };
 
                     const layout = {
-                        title: `Candlestick Chart for BTCUSDT - ${selectedTimeline} minutes`,
+                        title: `Candlestick Chart for ${cryptoName} - ${selectedTimeline} minutes`,
                         xaxis: {
                             rangeslider: {
                                 visible: false
@@ -82,10 +82,29 @@
                     };
 
                     Plotly.newPlot('candlestick-chart', figure);
+                    
                 });
+                lastSelectedCrypto = cryptoName; 
+        }
+
+        // Attach the event listener to watchlist items
+        document.getElementById("watchlist-items").addEventListener("click", handleWatchlistItemClick);
+        function updateChart() {
+            const selectedCrypto = document.querySelector("#watchlist-items li.active");
+            const selectedCryptoName = selectedCrypto ? selectedCrypto.dataset.crypto : "BTCUSDT";
+            const selectedTimeline = event.target.value;
+            updateChartWithCrypto(lastSelectedCrypto, selectedTimeline);
+        }
+
+        function handleWatchlistItemClick(event) {
+            const cryptoName = event.target.dataset.crypto;
+            if (cryptoName) {
+                const selectedTimeline = document.getElementById("timeline").value;
+                updateChartWithCrypto(cryptoName, selectedTimeline);
+            }
         }
 
         // Initial chart load
-        updateChart();
+        updateChartWithCrypto("BTCUSDT", "5"); // You can set the default crypto and timeline here
     </script>
 {% endblock %}

@@ -11,9 +11,11 @@ from app import app, cryptos
 from flask import Flask, render_template, jsonify,request
 import pandas as pd
 # Routes
+
 @app.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
+    global saved_symbol
     watchlist_form = WatchlistForm()
     watchlist = Watchlist.query.filter_by(user_id=current_user.id).all()
 
@@ -23,8 +25,8 @@ def index():
         db.session.commit()
         flash('Crypto added to watchlist!')
         return redirect(url_for('index'))
-
-    symbol = 'BTCUSDT'  # Replace with your desired trading pair
+    selected_crypto = request.args.get('crypto',"BTCUSDT") 
+    symbol = selected_crypto  # Replace with your desired trading pair
     timeline = (request.args.get('timeline', '5'))  # Get selected timeline, default 5 minutes
     interval = f'{timeline}'  # Convert to string for API request
     limit = 100  # Number of data points to fetch
@@ -34,12 +36,16 @@ def index():
     data['times'] = pd.to_datetime(data['times'])
     data['times_d'] = pd.to_datetime(data['times'])
     data['times'] = data['times'].dt.strftime('%Y-%m-%d %H:%M:%S')
-
+    saved_symbol=selected_crypto
     return render_template('index.html', watchlist_form=watchlist_form, watchlist=watchlist, candlestick_data=data.to_dict(orient='records'))
 
 @app.route('/candlestick_data')
 def candlestick_data():
-    symbol = 'BTCUSDT'  # Replace with your desired trading pair
+    global saved_symbol
+    selected_crypto = request.args.get('crypto',"BTCUSDT") 
+    if(selected_crypto=="None"):
+        selected_crypto=saved_symbol
+    symbol = selected_crypto  # Replace with your desired trading pair
     timeline = (request.args.get('timeline', '5'))  # Get selected timeline, default 5 minutes
     interval = f'{timeline}'  # Convert to string for API request
     limit = 100  # Number of data points to fetch
@@ -50,7 +56,7 @@ def candlestick_data():
     data['times_d'] = pd.to_datetime(data['times'])
    
     data['times'] = data['times'].dt.strftime('%Y-%m-%d %H:%M:%S')
-
+    saved_symbol=selected_crypto
     return jsonify(data.to_dict(orient='records'))
 
 @app.route('/signup', methods=['GET', 'POST'])

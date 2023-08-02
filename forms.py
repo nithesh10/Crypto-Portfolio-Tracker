@@ -8,7 +8,7 @@ from models import User
 from bybit import *
 # fetch a list of cryptocurrencies
 response=get_symbols()
-cryptos = [(crypto['name'], crypto['name']) for crypto in response.json()['result']]
+cryptos = [(crypto['name'], crypto['name']) for crypto in response]
 
 class SignupForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])

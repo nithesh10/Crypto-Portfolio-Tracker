@@ -8,6 +8,7 @@ import requests
 from wtforms import StringField, PasswordField, SubmitField, SelectMultipleField, SelectField
 from wtforms.validators import DataRequired, EqualTo, Email, Regexp, ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
+from bybit import get_symbols
 from database import db
 # Initialization
 app = Flask(__name__)
@@ -23,8 +24,8 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
 # Fetch a list of cryptocurrencies
-response = requests.get('https://api.bybit.com/v2/public/symbols', headers={'api_key': 'YourAPIKey'})
-cryptos = [(crypto['name'], crypto['name']) for crypto in response.json()['result']]
+response=get_symbols()
+cryptos = [(crypto['name'], crypto['name']) for crypto in response]
 
 
 # Models
