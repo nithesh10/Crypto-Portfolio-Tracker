@@ -1,4 +1,3 @@
-<!-- login.html -->
 {% extends "base.html" %}
 
 {% block content %}
@@ -22,4 +21,14 @@
             </script>
         {% endif %}
     {% endwith %}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ super() }}
+    <style>
+        /* Set text color to black for login page */
+        .login-page {
+            color: black;
+        }
+    </style>
 {% endblock %}

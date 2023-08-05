@@ -15,7 +15,7 @@ from flask import Flask, render_template, jsonify,request
 import pandas as pd
 # Routes
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     global saved_symbol
@@ -31,7 +31,6 @@ def index():
         )
         db.session.add(crypto)
         db.session.commit()
-        flash('Crypto added to watchlist!')
         return redirect(url_for('index'))
     selected_crypto = request.args.get('crypto',"BTCUSDT") 
     symbol = selected_crypto  # Replace with your desired trading pair
@@ -157,7 +156,7 @@ def signup():
         return redirect(url_for('login')) 
     return render_template('signup.html', form=form)
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -172,7 +171,7 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 @app.route('/add_to_watchlist', methods=['GET', 'POST'])
 @login_required
