@@ -1,19 +1,29 @@
 {% extends "base.html" %}
 
+{% block title %}Login - Candlestick Chart{% endblock %}
+
 {% block content %}
-    <h2>Login</h2>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.username.label }}<br>
-            {{ form.username(size=32) }}
-        </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password(size=32) }}
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
+    <div class="registration-container">
+        <h2>Login</h2>
+        <form method="POST" class="registration-form">
+            {{ form.hidden_tag() }}
+            {{ form.csrf_token }}
+            {% for field in form %}
+                <div class="form-group">
+                    {{ field.label(class="form-label") }}<br>
+                    {% if field.type != "SubmitField" %}
+                        {{ field(class="form-control") }}
+                        {% for error in field.errors %}
+                            <small class="form-text text-danger">{{ error }}</small>
+                        {% endfor %}
+                    {% else %}
+                        {{ field(class="btn btn-primary") }}
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </form>
+    </div>
+
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <script>
@@ -26,9 +36,76 @@
 {% block stylesheets %}
     {{ super() }}
     <style>
-        /* Set text color to black for login page */
-        .login-page {
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .registration-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
             color: black;
         }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        .form-text {
+            display: block;
+            color: #dc3545;
+            margin-top: 5px;
+        }
+
+        .btn-primary {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #cd155c;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #b81b57;
+        }
+
+        /* Add padding to the form */
+        .registration-form {
+            padding: 25px;
+            padding-right: 40px;
+        }
+        .form-group input[type="hidden"] {
+    display: none;
+}
     </style>
 {% endblock %}

@@ -9,12 +9,12 @@
                 <div class="form-group">
                     {{ field.label(class="form-label") }}<br>
                     {% if field.type != "SubmitField" %}
-                        {{ field(class="form-control", size=32) }}
+                        {{ field(class="form-control") }}
                         {% for error in field.errors %}
                             <small class="form-text text-danger">{{ error }}</small>
                         {% endfor %}
                     {% else %}
-                        {{ field(class="btn btn-primary") }}
+                        {{ field(class="btn btn-primary", onclick="this.form.submit()") }}
                     {% endif %}
                 </div>
             {% endfor %}
@@ -29,7 +29,8 @@
         {% endif %}
     {% endwith %}
 {% endblock %}
-
+{% block stylesheets %}
+    {{ super() }}
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -43,6 +44,7 @@
         background-color: #fff;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         border-radius: 8px;
+        color: black;
     }
 
     h2 {
@@ -83,13 +85,17 @@
         padding: 10px;
         border: none;
         border-radius: 4px;
-        background-color: #007bff;
+        background-color: #cd155c;
         color: #fff;
         font-size: 16px;
         cursor: pointer;
     }
-
+    .registration-form {
+            padding: 25px;
+            padding-right: 40px;
+        }
     .btn-primary:hover {
-        background-color: #0056b3;
+        background-color: #b81b57;
     }
 </style>
+{% endblock %}
