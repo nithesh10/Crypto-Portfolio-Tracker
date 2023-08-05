@@ -108,11 +108,12 @@ def check_alerts():
                                 percentage_change=price_change)
                         sent_email.append(alert.id)
                         send_email(user.email,"Price Alert Triggered",email_body)
-                        triggered_alerts.append(alert.symbol)
-                        # Remove the PriceAlerts object after alerting
-                        #db.session.delete(alert)
-                        #db.session.commit()
-                        print("alert triggered via panel")
+                        if(user.id==current_user.id):
+                            triggered_alerts.append(alert.symbol)
+                            # Remove the PriceAlerts object after alerting
+                            #db.session.delete(alert)
+                            #db.session.commit()
+                            print("alert triggered via panel")
     print("triggered alerts:-",triggered_alerts)
     return jsonify({'triggered_alerts': triggered_alerts})
 
@@ -129,6 +130,13 @@ def sign_up_for_portfolio_email():
     send_portfolio_email(current_user.id)
 
     return jsonify(message='Email preference updated successfully'), 200
+@app.route('/check_portfolio_email', methods=['POST','GET'])
+def check_portfolio_email():
+    user_id = current_user.id  
+    # Update the user's email preference in the database
+    user = User.query.get(user_id)
+    value=user.receive_portfolio_email 
+    return jsonify({'value':value})
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -185,7 +193,7 @@ def remove_from_watchlist(crypto_name):
     if crypto:
         db.session.delete(crypto)
         db.session.commit()
-    return redirect(url_for('index'))
+    return jsonify({"message": "Stock removed successfully"}), 200
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required

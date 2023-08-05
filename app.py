@@ -69,7 +69,15 @@ celery.conf.beat_schedule = {
 
 
 
-
+@app.template_filter('truncate_email')
+def truncate_email(email, max_length=20):
+    if len(email) <= max_length:
+        return email
+    else:
+        half_length = max_length // 2
+        start = email[:half_length]
+        end = email[-half_length:]
+        return start + '****' + end
 
 # User loader
 @login_manager.user_loader
@@ -87,8 +95,6 @@ if __name__ == '__main__':
     #price_thread = threading.Thread(target=track_prices)
     #price_thread.start()
     app.run(debug=True)
-
-
 
 """
 def track_prices():

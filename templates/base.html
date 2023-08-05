@@ -4,100 +4,629 @@
 <head>
     <title>{% block title %}Candlestick Chart{% endblock %}</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        
         #chart-section {
-            flex: 3;
+        height: 100vh; /* Set the height to full viewport height */
         }
-    
-        .watchlist-container {
-            flex: 1;
-            min-width: 200px; /* Adjust as needed */
+        #candlestick-chart {
+    height: 100%;
+}
+        .user-profile {
             display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            background-color: #f7f7f7; /* Light gray background for watchlist */
-            border-radius: 10px;
-            padding: 20px;
+            align-items: center;
         }
-    
-        .watchlist-container h2 {
-            font-size: 20px;
-            margin-bottom: 10px;
-            text-align: center;
+        .profile-container {
+            display: flex;
+            align-items: center;
         }
-    
+
+        .avatar-img {
+            width: 50px; /* Set the desired width */
+            height: 50px; /* Set the desired height */
+            margin-right: 10px; /* Add some margin to separate the image from text */
+            border-radius: 50%; /* Ensure the image is displayed as a circle */
+            overflow: hidden; /* Hide any overflow outside the circle */
+            float: left; /* Float the image to the left */
+        }
+
+        .user-info {
+            float: left; /* Float the user info to the left */
+        }
+
+        .user-name,
+        .user-email {
+            margin: 0; /* Remove default margin */
+        }
+        .logout-link {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+            font-size: 20px; 
+        }
+
+        .logout-link i {
+            margin-right: 10px; 
+        }
+
+        .logout-link span {
+            margin: 10;
+        }
+
+        .watchlist {
+            margin-top: 20px;
+            padding: 10px;
+            
+        }
+
         .watchlist ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            max-height: 400px;
+            overflow-y: auto; /* Enable vertical scrolling */
+        }
+
+        .watchlist li {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+            cursor: pointer; /* Add pointer cursor for clickable effect */
+            transition: background-color 0.2s; /* Add transition for hover effect */
+            
+        }
+
+        .watchlist li:hover {
+            background-color: #525252; /* Change background color on hover */
+        }
+
+        .caret {
+            margin-left: 10px; /* Add some spacing between user info and caret icon */
+            cursor: pointer; /* Add a pointer cursor to indicate interactivity */
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 280px;
+            background-color: #343a40; 
+            color: #fff; 
+            padding-top: 20px;
+            z-index: 1000;
+        }
+
+        .sidebar ul {
             list-style: none;
             padding: 0;
             margin: 0;
         }
-    
-        .watchlist li {
-            margin-bottom: 5px;
-            font-size: 16px;
-            color: #333;
+
+        .sidebar li {
+            padding: 10px;
         }
-    
-        /* Styling for the select dropdown */
-        #timeline {
-            padding: 8px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+
+        .sidebar a {
+            color: #fff; 
+            text-decoration: none;
         }
-    
+
+        .sidebar a:hover {
+            color: #ccc; 
+        }
+
+        #chart-section {
+        height: calc(100vh - 50px); /* Adjust the height based on your page structure */
+    }
+        .main-content {
+            margin-left: 300px;
+            padding: 20px;
+            box-sizing: border-box; /* Ensure padding is included in the width calculation */
+            min-height: 200vh; /* Set a minimum height to make sure the content takes up the entire screen */
+           
+        }
         
-        .watchlist-container {
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+        .nav-primary {
+            padding-left: 0;
+            margin-bottom: 30px;
         }
-    </style>
+
+        .nav-primary li {
+            list-style: none;
+        }
+
+        .nav-primary a {
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 15px;
+        }
+
+        .nav-primary a:hover {
+            background-color: #555; /* Highlight color on hover */
+        }
+
+        .nav-primary .caret {
+            float: right;
+            margin-top: 5px;
+        }
+
+        .nav-collapse {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .nav-collapse li {
+            list-style: none;
+        }
+
+        .nav-collapse a {
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            padding: 5px 0;
+        }
+
+        .nav-collapse a:hover {
+            background-color: #555; /* Highlight color on hover */
+        }
+        .logout-container {
+    position: absolute; /* Change to 'absolute' */
+    bottom: 20px;
     
+    z-index: 100;
+}
+
+
+.logout-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+}
+
+.logout-link i {
+    margin-right: 5px; /* Add spacing between the icon and the text */
+}
+
+.logout-link p {
+    margin: 0;
+}
+.popup {
+    display: none; /* Hide the popup by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+}
+
+.popup-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#stockSearch {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+#stockDropdown {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+#stockDropdown li {
+    padding: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#stockDropdown li:hover {
+    background-color: #f2f2f2;
+}
+.side-panel {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 250px;
+    width: 250px;
+    height: 100%;
+    background-color: #f5f5f5;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.side-panel.open {
+    display: block;
+}
+
+.watchlist-form {
+        display: flex;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    .watchlist-input {
+        flex: 1;
+        margin-right: 5px;
+    }
+
+    .watchlist-input select {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #f8f8f8;
+        color: #333;
+    }
+
+    .watchlist-submit button {
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        background-color: #007bff;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .watchlist-submit button i {
+        margin-right: 5px;
+    }
+    .symbol-info-container {
+            padding: 20px;
+            background-color: #1e1e26;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: slideInUp 0.5s ease-out; /* Add animation for cool effect */
+        }
+
+        @keyframes slideInUp {
+            0% {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+    /* Add a hover effect to the submit button */
+    .watchlist-submit button:hover {
+        background-color: #0056b3;
+    }
+    .remove-button {
+        justify-content: flex-end;
+        display: flex;
+        margin-left: 10px;
+        
+    }
+    .remove-button button {
+        padding: 5px;
+        background-color: #ff0000;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        
+    }
+    .remove-button button:hover {
+        background-color: #cc0000;
+    }
+    .remove-button button:first-child {
+        margin-right: 5px;
+        background-color: #00cc00; /* Change the background color of the last button (clock icon) */
+    }
+        
+    </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav>
-        <div class="nav-logo">
-            <!-- You can add your logo here if desired -->
-        </div>
-        <div class="nav-links">
-            {% block navigation %}
-                
-                {% if not logged_in %}
-                    <a href="/login">Login</a>
-                    <a href="/signup">Register</a>
-                {% else %}
-                    <a href="/logout">Logout</a>
+    
+    <!-- Sidebar -->
+<div class="sidebar sidebar-style-2" data-background-color="dark2">			
+        <div class="sidebar-wrapper scrollbar scrollbar-inner">
+            <div class="sidebar-content">
+            {% if current_user.is_authenticated %}	
+                <div class="user">
+                    <div class="avatar-sm float-left mr-2">
+                        <img src="{{ url_for('static', filename='profile.png') }}" alt="User Profile" class="avatar-img rounded-circle">
+                    </div>
+                    <div class="info">
+                        <a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
+                            <span>
+                                {{ current_user.username }}
+                            </span>
+                            <span class="user-email">{{ current_user.email | truncate_email }}</span>
+                        </a>
+                        <div class="clearfix"></div>    
+                    </div>
+                </div>
+            {% endif %}
+            <ul class="nav nav-primary">
+                <!--
+                <li class="nav-item {% if 'index' in segment %} active {% endif %}">
+                    <a href="/dashboard">
+                        <i class="fas fa-home"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li> -->
+                {% if not current_user.is_authenticated %}
+                    <li class="nav-item {% if 'login' in segment %} active {% endif %}">
+                        <a href="/login">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <p>Login</p>
+                        </a>
+                    </li>
+                    <li class="nav-item {% if 'register' in segment %} active {% endif %}">
+                        <a href="/signup">
+                            <i class="fas fa-user-plus"></i>
+                            <p>Register</p>
+                        </a>
+                    </li>
                 {% endif %}
-            {% endblock %}
+                {% if current_user.is_authenticated %}
+                    <!--
+                    <li class="nav-item {% if 'profile' in segment %} active {% endif %}">
+                        <a href="/profile">
+                            <i class="fas fa-user"></i>
+                            <p>Profile</p>
+                        </a>
+                    </li>
+                    -->
+                    
+                    <div class="watchlist">
+                        <form method="POST" style="display: inline;">
+                        <h2>Watchlist</h2>
+                        {{ watchlist_form.hidden_tag() }}
+                        <div class="watchlist-form">
+                            <div class="watchlist-input">
+                               {{ watchlist_form.crypto }}
+                               
+                            </div>
+                            <div class="watchlist-submit">
+                                <button onclick={watchlist_form.submit()}>
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        </form>
+                        <ul>
+                            {% for crypto in watchlist %}
+                            <li 
+                            data-crypto="{{ crypto.crypto_name }}" onclick="updateChart('{{ crypto.crypto_name }}')">{{ crypto.crypto_name }}
+                            <div class="remove-button">
+                                <button onclick="setAlert('{{ crypto.crypto_name }}')">
+                                    <i class="fas fa-clock"></i>
+                                </button>
+                            <button onclick="removeStockFromWatchlist('{{ crypto.crypto_name }}')">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    
+                    
+                    <div class="logout-container">
+                        <a href="/logout" class="logout-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <p>Logout</p>
+                        </a>
+                    </div>
+                
+            </ul>
         </div>
-    </nav>
-
-    <!-- Page Content -->
-    <div class="container">
-        {% block content %}
-            <div id="chart-section">
-                <!-- Place your chart code here -->
-                <div id="candlestick-chart-container">
-                    <div id="candlestick-chart"></div>
-                </div>
-            </div>
-            <div id="watchlist-section">
-                <!-- Place your watchlist code here -->
-                <div class="watchlist">
-                    <h2>Watchlist</h2>
-                    <ul>
-                        <li>Item 1</li>
-                        <li>Item 2</li>
-                        <!-- Add more watchlist items here -->
-                    </ul>
-                </div>
-            </div>
-        {% endblock %}
     </div>
+    <div class="symbol-info-container">
+        <h1><strong><span id="current-price"></span></strong></h1>
+        <p><span id="symbol"></span></p>
+        <p><strong>High Price (24h):</strong> <span id="high-price"></span></p>
+        <p><strong>Low Price (24h):</strong> <span id="low-price"></span></p>
+        <p><strong>Price Change (24h):</strong> <span id="price-change"></span></p>
+    </div>
+    <div class="form-group" style="padding: 10px;">
+        <input type="checkbox" class="form-check-input" id="portfolio-email-checkbox" onclick="togglePortfolioEmail()">
+        <label class="form-check-label" for="portfolio-email-checkbox">Daily Portfolio email updates</label>
+    </div>
+    
+    
+</div>
+{% endif %}
 
-    <script>
-        /* Add your custom JavaScript code here */
-    </script>
+<!-- End Sidebar -->
+<div class="main-content">
+    {% block content %}
+    <!-- Your page content here -->
+    {% endblock %}
+</div>
+
+
+    <!-- Rest of the original base.html content -->
+    <!-- ... -->
+
+    
 </body>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
+<script>
+    function getUserEmailPreference() {
+        fetch('/check_portfolio_email', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json' // Set the content type to application/json
+        },
+    })
+        .then(response => response.json())
+        .then(data => {
+            const checkbox = document.getElementById("portfolio-email-checkbox");
+            checkbox.checked = data.value; // Update the checkbox state based on the user's preference
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    }
+    function togglePortfolioEmail() {
+            const checkbox = document.getElementById("portfolio-email-checkbox");
+            const signUpForEmailUpdates = checkbox.checked;
+
+            // Send the data to the backend using fetch
+            fetch('/sign_up_for_portfolio_email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    sign_up: signUpForEmailUpdates
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display a success message or handle errors here
+                alert(data.message);
+            })
+            .catch(error => {
+                // Handle errors here
+                console.error(error);
+            });
+        }
+    function removeStockFromWatchlist(cryptoName) {
+    // Send a request to remove the stock from the watchlist
+    fetch(`/remove_from_watchlist/${cryptoName}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Display a success message or handle errors here
+        // Reload the page after removing the stock
+        window.location.reload();
+    })
+    .catch(error => {
+        // Handle errors here
+        console.error(error);
+    });
+}
+
+    function toggleSidePanel() {
+            const sidePanel = document.getElementById("sidePanel");
+            sidePanel.classList.toggle("open");
+        }
+    function showSidePanel() {
+        const sidePanel = document.getElementById("sidePanel");
+        sidePanel.classList.add("open");
+    }
+
+    function hideSidePanel() {
+        const sidePanel = document.getElementById("sidePanel");
+        sidePanel.classList.remove("open");
+    }
+
+    function filterStocks() {
+        const input = document.getElementById("stockSearch");
+        const filter = input.value.toUpperCase();
+        const ul = document.getElementById("stockDropdown");
+        const li = ul.getElementsByTagName("li");
+
+        for (let i = 0; i < li.length; i++) {
+            const stock = li[i].innerText;
+            if (stock.toUpperCase().indexOf(filter) > -1) {
+                li[i].classList.add("show");
+            } else {
+                li[i].classList.remove("show");
+            }
+        }
+    }
+    function setAlert(cryptoName) {
+            const lowerLimit = parseFloat(window.prompt('Enter Lower Limit:'));
+            const upperLimit = parseFloat(window.prompt('Enter Upper Limit:'));
+            if (!isNaN(lowerLimit) && !isNaN(upperLimit)) {
+                // Send the data to the backend using fetch
+                fetch('/add_price_alert', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        crypto_name: cryptoName,
+                        lower_limit: lowerLimit,
+                        upper_limit: upperLimit
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Display a success message or handle errors here
+                    alert(data.message);
+                })
+                .catch(error => {
+                    // Handle errors here
+                    console.error(error);
+                });
+            }
+        }
+
+    function addStockToWatchlist(stock) {
+        // Send the data to the backend using fetch
+        fetch('/add_to_watchlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                stock: stock
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Display a success message or handle errors here
+            alert(data.message);
+        })
+        .catch(error => {
+            // Handle errors here
+            console.error(error);
+        });
+
+        hideSidePanel();
+    }
+
+
+    function updateChart(cryptoName) {
+        const selectedTimeline = document.getElementById("timeline").value;
+        updateChartWithCrypto(cryptoName, selectedTimeline);
+        updateSymbolInfo();
+    }
+    document.addEventListener('DOMContentLoaded', getUserEmailPreference);
+</script>
 </html>

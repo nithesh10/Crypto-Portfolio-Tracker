@@ -10,27 +10,6 @@
 
 {% block content %}
 <!-- Add your dashboard content here -->
-<div class="container">
-    <div id="chart-section">
-        <div id="candlestick-chart"></div>
-    </div>
-    <div id="watchlist-section" class="watchlist-container">
-        <h2>
-            Watchlist
-            <!-- Add your watchlist content here or use Flask/Jinja2 to render the watchlist data -->
-            <form method="POST" style="display: inline;">
-                {{ watchlist_form.hidden_tag() }}
-                {{ watchlist_form.crypto(style='width:50%; display:inline;') }}
-                {{ watchlist_form.submit(style='display:inline;') }}
-            </form>
-        </h2>
-        <ul id="watchlist-items">
-            {% for crypto in watchlist %}
-            <li data-crypto="{{ crypto.crypto_name }}">{{ crypto.crypto_name }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
 <div>
     <label for="timeline">Select Timeline:</label>
     <select id="timeline" onchange="handleTimelineChange()">
@@ -45,6 +24,18 @@
         <option value="M">Monthly</option>
     </select>
 </div>
+<div class="container">
+    <div id="chart-section" class="fullscreen">
+        <div id="candlestick-chart"></div>
+    </div>
+    <div id="watchlist-section" class="watchlist-container">
+       
+        <ul id="watchlist-items">
+            
+        </ul>
+    </div>
+</div>
+<!--
 
 <div>
     <h2>Symbol Info</h2>
@@ -64,6 +55,7 @@
     <input type="checkbox" id="portfolio-email-checkbox" onclick="togglePortfolioEmail()">
     <label for="portfolio-email-checkbox">Sign up for daily portfolio email updates</label>
 </div>
+-->
 
 <script>
     let lastSelectedSymbol = "BTCUSDT"; // Initialize with default symbol
@@ -133,6 +125,7 @@
         fetch(`/symbol_info?symbol=${lastSelectedSymbol}`)
             .then(response => response.json())
             .then(data => {
+                document.getElementById("symbol").innerText=lastSelectedSymbol;
                 document.getElementById("current-price").innerText = data[0].lastPrice;
                 document.getElementById("high-price").innerText = data[0].highPrice24h;
                 document.getElementById("low-price").innerText = data[0].lowPrice24h;
@@ -149,13 +142,17 @@
     document.getElementById("watchlist-items").addEventListener("click", handleWatchlistItemClick);
 
     function handleWatchlistItemClick(event) {
-        const cryptoName = event.target.dataset.crypto;
-        if (cryptoName) {
-            const selectedTimeline = document.getElementById("timeline").value;
-            updateChartWithCrypto(cryptoName, selectedTimeline);
-            updateSymbolInfo();
-        }
+    const cryptoName = event.target.dataset.crypto;
+    if (cryptoName) {
+        const selectedTimeline = document.getElementById("timeline").value;
+        updateChartWithCrypto(cryptoName, selectedTimeline);
+        updateSymbolInfo();
+    } else {
+        // Display the popup
+        showAddStockPopup();
     }
+}
+
 
     // Initial chart load
     updateChartWithCrypto("BTCUSDT", "5"); // You can set the default crypto and timeline here
@@ -210,6 +207,10 @@
                 console.error(error);
             });
     }
+    document.getElementById("candlestick-chart").addEventListener("click", function (event) {
+        // Stop propagation of the click event to prevent it from reaching the chart
+        event.stopPropagation();
+    }); 
     
     checkForAlerts();
 
