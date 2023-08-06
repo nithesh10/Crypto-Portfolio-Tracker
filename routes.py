@@ -129,6 +129,7 @@ def sign_up_for_portfolio_email():
     send_portfolio_email(current_user.id)
 
     return jsonify(message='Email preference updated successfully'), 200
+
 @app.route('/check_portfolio_email', methods=['POST','GET'])
 def check_portfolio_email():
     user_id = current_user.id  
