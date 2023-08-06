@@ -90,13 +90,13 @@ from routes import *
 # Create database tables if they don't exist
 with app.app_context():
     db.create_all()
-
+"""
 if __name__ == '__main__':
     #price_thread = threading.Thread(target=track_prices)
     #price_thread.start()
     app.run(debug=True)
 
-"""
+
 def track_prices():
     with app.app_context():
         sent_email=[]
