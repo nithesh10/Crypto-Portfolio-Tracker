@@ -1,6 +1,8 @@
 import smtplib
 import threading
 import time
+import sys
+sys.path.append('.')
 from flask import Flask, render_template, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -11,8 +13,8 @@ import requests
 from wtforms import StringField, PasswordField, SubmitField, SelectMultipleField, SelectField
 from wtforms.validators import DataRequired, EqualTo, Email, Regexp, ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
-from bybit import get_symbols
-from database import db
+from .bybit import get_symbols
+from .database import db
 from celery import Celery
 from datetime import timedelta
 from email.mime.multipart import MIMEMultipart
@@ -41,9 +43,9 @@ cryptos = [(crypto['name'], crypto['name']) for crypto in response]
 
 
 # Models
-from models import Crypto,User,Watchlist,PriceAlerts
+from .models import Crypto,User,Watchlist,PriceAlerts
 # Forms
-from forms import SignupForm,LoginForm,CryptoForm,WatchlistForm
+from .forms import SignupForm,LoginForm,CryptoForm,WatchlistForm
 
 #celery task scheduler
 @celery.task
@@ -85,7 +87,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 # Routes
-from routes import *
+from .routes import *
 
 # Create database tables if they don't exist
 with app.app_context():
